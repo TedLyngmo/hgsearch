@@ -1,3 +1,7 @@
+// A memory mapping hgsearch version in case the hg19 file is too big to fit in memory
+
+#include <boost/iostreams/device/mapped_file.hpp>
+
 #include <algorithm>
 #include <atomic>
 #include <cerrno>
@@ -9,6 +13,23 @@
 #include <sstream>
 #include <string_view>
 #include <vector>
+
+// a function to return an index to all the lines in a memory mapped file
+std::vector<std::string_view> make_line_index(boost::iostreams::mapped_file_source& mfs) {
+    std::vector<std::string_view> lines;
+    auto first = mfs.data();
+    auto end = mfs.data() + mfs.size();
+    while(first < end) {
+        auto last = first;
+        // find line ending
+        for(; last != end && *last != '\n'; ++last) {
+        }
+        // store a view over this line
+        lines.emplace_back(first, last);
+        first = last + 1;
+    }
+    return lines;
+}
 
 class tsv_record {
 public:
@@ -63,7 +84,7 @@ std::ostream& operator<<(std::ostream& os, const tsv_record& r) {
 }
 
 int run(const std::string_view& program, const std::string_view& tsvname, std::istream& tsvfile,
-        const std::vector<std::string>& hgs, std::ostream& result) {
+        const std::vector<std::string_view>& hgindex, std::ostream& result) {
     int error = 0;
     tsv_record tsvr;
 
@@ -75,7 +96,7 @@ int run(const std::string_view& program, const std::string_view& tsvname, std::i
             // count hits
             std::atomic<std::uint32_t> count = 0;
 
-            std::for_each(std::execution::par_unseq, hgs.begin(), hgs.end(),
+            std::for_each(std::execution::par_unseq, hgindex.begin(), hgindex.end(),
                           [&sub = tsvr[6], &count](const std::string_view& line) {
                               if(line.find(sub) != std::string_view::npos) ++count;
                           });
@@ -105,21 +126,21 @@ int cppmain(const std::string_view& program, std::vector<std::string_view> args)
     if(!tsvfile) return error(program, args[0]);
 
     // "hg19.fa"
-    std::ifstream hgfile(args[1].data());
-    if(!hgfile) return error(program, args[1]);
-
-    std::cerr << "Reading genome data..." << std::flush;
-    std::vector<std::string> hgs(std::istream_iterator<std::string>(hgfile), std::istream_iterator<std::string>{});
-    std::cerr << " read " << hgs.size() << " lines.\n";
+    boost::iostreams::mapped_file_source mfs(args[1].data());
+    if(!mfs.is_open()) return error(program, args[1]);
 
     // where to save the output?
     std::ofstream out;
     std::ostream& res = args[2] == "-" ? std::cout : (out.open(args[2].data()), out);
     if(!res) return error(program, args[2]);
 
+    std::cerr << program << ": Indexing " << args[1] << " ..." << std::flush;
+    auto hgindex = make_line_index(mfs);
+    std::cerr << " indexed " << hgindex.size() << " lines.\n";
+
     tsv_record::max_in_cols = 7;
 
-    return run(program, args[0], tsvfile, hgs, res);
+    return run(program, args[0], tsvfile, hgindex, res);
 }
 
 int main(int argc, char* argv[]) {
