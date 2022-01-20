@@ -30,3 +30,8 @@
 *.exe
 *.out
 *.app
+hgsearch
+
+# Data
+data/hg19.fa
+data/tsv_file_KLM117.bed

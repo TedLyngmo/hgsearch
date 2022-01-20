@@ -1,0 +1,5 @@
+#!/bin/bash
+
+curl ftp://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz --user anonymous -o - | \
+gunzip | \
+grep -v '^NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN$' > data/hg19.fa
