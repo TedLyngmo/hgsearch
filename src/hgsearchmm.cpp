@@ -97,7 +97,7 @@ int run(const std::string_view& program, const std::string_view& tsvname, std::i
             std::atomic<std::uint32_t> count = 0;
 
             const auto needle_size = tsvr[6].size();
-            //const std::boyer_moore_searcher searcher(tsvr[6].begin(), tsvr[6].end());
+            // const std::boyer_moore_searcher searcher(tsvr[6].begin(), tsvr[6].end());
             const std::boyer_moore_horspool_searcher searcher(tsvr[6].begin(), tsvr[6].end());
 
             std::for_each(std::execution::par_unseq, hgindex.begin(), hgindex.end(),

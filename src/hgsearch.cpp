@@ -62,8 +62,9 @@ std::ostream& operator<<(std::ostream& os, const tsv_record& r) {
     return os << oss.str();
 }
 
-int run(const std::string_view& program, const std::string_view& tsvname, std::istream& tsvfile,
-        const std::vector<std::string>& hgs, std::ostream& result) {
+template<class Container>
+int run(const std::string_view& program, const std::string_view& tsvname, std::istream& tsvfile, const Container& chrs,
+        std::ostream& result) {
     int error = 0;
     tsv_record tsvr;
 
@@ -75,11 +76,17 @@ int run(const std::string_view& program, const std::string_view& tsvname, std::i
             // count hits
             std::atomic<std::uint32_t> count = 0;
 
-            std::for_each(std::execution::par_unseq, hgs.begin(), hgs.end(),
-                          [&sub = tsvr[6], &count](const std::string_view& line) {
-                              if(line.find(sub) != std::string_view::npos) ++count;
-                          });
+            const auto needle_size = tsvr[6].size();
+            // const std::boyer_moore_searcher searcher(tsvr[6].begin(), tsvr[6].end());
+            const std::boyer_moore_horspool_searcher searcher(tsvr[6].begin(), tsvr[6].end());
 
+            std::for_each(std::execution::par_unseq, chrs.begin(), chrs.end(),
+                          [&searcher, &needle_size, &count](const auto& chromosome) {
+                              for(auto cb = chromosome.begin();
+                                  (cb = std::search(cb, chromosome.end(), searcher)) != chromosome.end(); cb += needle_size) {
+                                  ++count;
+                              };
+                          });
             tsvr.emplace_back(std::to_string(count));
             result << tsvr << std::flush;
         }
@@ -109,8 +116,8 @@ int cppmain(const std::string_view& program, std::vector<std::string_view> args)
     if(!hgfile) return error(program, args[1]);
 
     std::cerr << "Reading genome data..." << std::flush;
-    std::vector<std::string> hgs(std::istream_iterator<std::string>(hgfile), std::istream_iterator<std::string>{});
-    std::cerr << " read " << hgs.size() << " lines.\n";
+    std::vector<std::string> chrs(std::istream_iterator<std::string>(hgfile), std::istream_iterator<std::string>{});
+    std::cerr << " read " << chrs.size() << " lines.\n";
 
     // where to save the output?
     std::ofstream out;
@@ -119,7 +126,7 @@ int cppmain(const std::string_view& program, std::vector<std::string_view> args)
 
     tsv_record::max_in_cols = 7;
 
-    return run(program, args[0], tsvfile, hgs, res);
+    return run(program, args[0], tsvfile, chrs, res);
 }
 
 int main(int argc, char* argv[]) {
