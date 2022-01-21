@@ -1,5 +1,10 @@
 # hgsearch
-Tools for searching for sequences in genome files
+Tools for searching for sequences in genome files. in particular, these tools are extracting fasta sequences (strings of DNA) and how frequently a certain string of DNA appears in the human genome (in particular, the human reference genome hg19/GRCh37).
+
+Some resources on both file formats for non-bioinformaticians: 
+- FASTA files: https://zhanggroup.org/FASTA/
+- BED files: https://genome.ucsc.edu/FAQ/FAQformat.html#format1
+
 
 Some are made in scripting languages like `bash`, `awk` and `perl` and others in C++.
 
