@@ -1,13 +1,13 @@
-all: hgsearch hgsearchmm
+all: bin/hgsearch bin/hgsearchmm
 
-hgsearch: src/hgsearch.cpp
+bin/hgsearch: src/hgsearch.cpp
 	g++ -o $@ $< -std=c++20 -O3 -ltbb
 
-hgsearchmm: src/hgsearchmm.cpp
+bin/hgsearchmm: src/hgsearchmm.cpp
 	g++ -o $@ $< -std=c++20 -O3 -lboost_iostreams -ltbb
 
 format:
 	clang-format -i src/*.cpp
 
 clean:
-	rm -f hgsearch hgsearchmm
+	rm -f bin/hgsearch bin/hgsearchmm

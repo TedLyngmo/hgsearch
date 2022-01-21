@@ -1,6 +1,6 @@
 ###### Benchmarks
 
-This table is a comparison of the different solutions, with timings to finish different amount of tsv/bed records with the full `hg19.fa` file (excluding the records containing only `N`:s). `hg19.fa` contains 57'946'726 records.
+This table is a comparison of the different solutions, with timings to finish different amount of tsv/bed records with the full `hg19.fa` file (excluding the records containing only `N`:s). `hg19.fa` contains 57'946'726 such records.
 
 | search \ beds |     1     |      2     |    100    |    1000    |
 |---------------|----------:|-----------:|----------:|-----------:|
