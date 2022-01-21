@@ -1,3 +1,7 @@
+#include "main.hpp"
+#include "runner.hpp"
+#include "tsv.hpp"
+
 #include <algorithm>
 #include <atomic>
 #include <cerrno>
@@ -9,96 +13,6 @@
 #include <sstream>
 #include <string_view>
 #include <vector>
-
-class tsv_record {
-public:
-    const std::string& operator[](size_t idx) { return data[idx]; }
-    size_t size() const { return data.size(); }
-
-    template<class... Args>
-    decltype(auto) emplace_back(Args&&... args) {
-        return data.emplace_back(std::forward<Args>(args)...);
-    };
-
-    inline static unsigned max_in_cols = 0; // 0 read all columns
-
-    friend std::istream& operator>>(std::istream& is, tsv_record& r);
-    friend std::ostream& operator<<(std::ostream& os, const tsv_record& r);
-
-private:
-    std::vector<std::string> data;
-};
-
-// read one tsv record
-std::istream& operator>>(std::istream& is, tsv_record& r) {
-    if(std::string lw; std::getline(is, lw)) {
-        std::istringstream iss(lw);
-        r.data.clear();
-        if(tsv_record::max_in_cols) {
-            unsigned cols_read = 0;
-            while(cols_read++ < tsv_record::max_in_cols && iss >> lw) {
-                r.data.push_back(std::move(lw));
-            }
-        } else {
-            while(iss >> lw) {
-                r.data.push_back(std::move(lw));
-            }
-        }
-    }
-    return is;
-}
-
-// write one tsv record
-std::ostream& operator<<(std::ostream& os, const tsv_record& r) {
-    std::ostringstream oss;
-    if(r.data.size()) {
-        auto first = r.data.begin();
-        oss << *first;
-        for(++first; first != r.data.end(); ++first) {
-            oss << '\t' << *first;
-        }
-    }
-    oss << '\n';
-    return os << oss.str();
-}
-
-template<class Container>
-int run(const std::string_view& program, const std::string_view& tsvname, std::istream& tsvfile, const Container& chrs,
-        std::ostream& result) {
-    int error = 0;
-    tsv_record tsvr;
-
-    for(std::uintmax_t line = 1; tsvfile >> tsvr; ++line) {
-        if(tsvr.size() < 7) {
-            std::cerr << program << ": " << tsvname << ": Error on line " << line << '\n';
-            error = 1;
-        } else {
-            // count hits
-            std::atomic<std::uint32_t> count = 0;
-
-            const auto needle_size = tsvr[6].size();
-            // const std::boyer_moore_searcher searcher(tsvr[6].begin(), tsvr[6].end());
-            const std::boyer_moore_horspool_searcher searcher(tsvr[6].begin(), tsvr[6].end());
-
-            std::for_each(std::execution::par_unseq, chrs.begin(), chrs.end(),
-                          [&searcher, &needle_size, &count](const auto& chromosome) {
-                              for(auto cb = chromosome.begin();
-                                  (cb = std::search(cb, chromosome.end(), searcher)) != chromosome.end(); cb += needle_size) {
-                                  ++count;
-                              };
-                          });
-            tsvr.emplace_back(std::to_string(count));
-            result << tsvr << std::flush;
-        }
-    }
-
-    return error;
-}
-
-int error(const std::string_view& program, const std::string_view& file) {
-    std::cerr << program << ": " << file << ": " << std::strerror(errno) << '\n';
-    return 1;
-}
 
 int cppmain(const std::string_view& program, std::vector<std::string_view> args) {
     if(args.size() != 3) {
@@ -127,8 +41,4 @@ int cppmain(const std::string_view& program, std::vector<std::string_view> args)
     tsv_record::max_in_cols = 7;
 
     return run(program, args[0], tsvfile, chrs, res);
-}
-
-int main(int argc, char* argv[]) {
-    return cppmain(argv[0], {argv + 1, argv + argc});
 }
