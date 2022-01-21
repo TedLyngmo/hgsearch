@@ -8,4 +8,4 @@ This table is a comparison of the different solutions, with timings to finish di
 | perl          |  13.263s  |    15.618s | 4m48.751s | 48m27.267s |
 | bash/grep     |   2.088s  |     3.670s | 3m27.378s | 34m41.129s |
 | hgsearch      |   8.776s  |     9.425s |   15.618s |  3m56.508s |
-| hgsearchmm    |   1.942s  |     2.146s |   21.715s |            |
+| hgsearchmm    |   1.942s  |     2.146s |   21.715s |  3m28.265s |
