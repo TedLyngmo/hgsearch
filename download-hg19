@@ -1,7 +1,8 @@
 #!/bin/bash
 #
 # A helper script to download the hg19.fa file and to concatenate all the lines
-# belonging to one chromosome into one single line. Multiple N's are replaced by N+
+# belonging to one chromosome into one single line. Multiple N's are replaced by N+.
+# N's represent "any nucleotide" (i.e. A,C,G, or T) and therefore are essentially wildcards that can be discounted/removed
 
 curl ftp://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz --user anonymous -o - | \
 gunzip | \
