@@ -29,9 +29,9 @@ int cppmain(const std::string_view& program, std::vector<std::string_view> args)
     std::ifstream hgfile(args[1].data());
     if(!hgfile) return error(program, args[1]);
 
-    std::cerr << "Reading genome data..." << std::flush;
+    std::cerr << program << " Reading genome data..." << std::flush;
     std::vector<std::string> chrs(std::istream_iterator<std::string>(hgfile), std::istream_iterator<std::string>{});
-    std::cerr << " read " << chrs.size() << " lines.\n";
+    std::cerr << " read " << chrs.size() << " chromosomes.\n";
 
     // where to save the output?
     std::ofstream out;
