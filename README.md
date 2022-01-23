@@ -18,3 +18,5 @@ These are two tools written in C++20 and they need support for execution policie
 ### Recommended tools
 
 `pbzip2` for parallel BZIP2 compression/decompression of big genome files etc.
+
+[![Gitter](https://badges.gitter.im/hgsearch/community.svg)](https://gitter.im/hgsearch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)

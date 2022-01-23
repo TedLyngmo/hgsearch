@@ -7,7 +7,7 @@
 
 class tsv_record {
 public:
-    const std::string& operator[](size_t idx);
+    const std::string& operator[](size_t idx) const;
     size_t size() const;
 
     template<class... Args>

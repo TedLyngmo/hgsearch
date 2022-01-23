@@ -12,7 +12,7 @@
 #include <string_view>
 #include <vector>
 
-const std::string& tsv_record::operator[](size_t idx) {
+const std::string& tsv_record::operator[](size_t idx) const {
     return data[idx];
 }
 size_t tsv_record::size() const {
