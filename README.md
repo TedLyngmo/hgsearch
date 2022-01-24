@@ -24,4 +24,13 @@ These are two tools written in C++20 and they need support for execution policie
 
 `pbzip2` for parallel BZIP2 compression/decompression of big genome files etc.
 
+### Contributing
+
+After cloning this repo, please install the git-hooks:
+```
+git clone git@github.com:TedLyngmo/hgsearch.git
+cd hgsearch
+git config --local core.hooksPath .githooks
+```
+
 [![Gitter](https://badges.gitter.im/hgsearch/community.svg)](https://gitter.im/hgsearch/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
