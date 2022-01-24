@@ -1,4 +1,4 @@
-#!bin/bash 
+#!/bin/bash
 
 #sorting by chromosome (1st column of a bed file) 
 sort -t$'\t' -k1 -n yourfile.bed
