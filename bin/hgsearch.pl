@@ -2,6 +2,8 @@
 use warnings;
 use strict;
 
+#When running this script from command line, use "perl this_script.pl hg19.fasta tsv.bed > new-tsv.bed"
+
 my ($bed_file, $fasta_file) = @ARGV;
 open my $bed,   '<', $bed_file   or die "$bed_file: $!";
 open my $fasta, '<', $fasta_file or die "$fasta_file: $!";
