@@ -37,3 +37,4 @@ hgsearchmm
 data/hg19.fa
 data/hg19.fa-unprocessed
 data/tsv_file_KLM117.bed
+data/tsv_file_KLM117.bed.[0-9]*
